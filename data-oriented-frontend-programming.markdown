@@ -2,17 +2,6 @@
 By Adam Munoz
 January 2020
 
-## Table of contents
-1. [Introduction](#introduction)
-1. [Conceptual framework](#conceptual-framework)
-1. [Functional programming and frontend development](#functional-programming-frontend-development)
-1. [Immediate Mode](#immediate-mode)
-1. [React](#react)
-1. [Persistent Data Structures](#persisten-data-structures)
-1. [STM: Transactional Memory](#stm)
-1. [Redux](#redux)
-
-
 <a name="#introduction"></a> 
 ## Introduction
 
@@ -154,3 +143,70 @@ The output of this would be something like this:
 ![](fig4.svg)
 
 *Fig4: The state of our UI at the start*
+
+Now we need to create some code for action handling.
+
+As we said in the previous section, we will just care about producing the right data and let the view take care of producing the user interface.
+
+
+```
+// state
+currentText = ''
+
+// update state
+function updateCurrentText(text) {
+  currentText = text;
+  render();
+}
+
+// view
+function view({text, onTextChangeAction}) {
+  return 
+    <div>
+      <p>You have typed {text.length} characters</p>
+      <textarea value={text} onchange={onTextChangeAction} />
+    </div>
+}
+
+// paint
+function render() {
+  ui = <view text={currentText} onTextChangeAction={updateCurrentText}/>
+  ReactDOM.render(ui, document.getElementById('root'))
+}
+```
+
+Every time the user generates a typing action, the state will be updated and the view will produce a new version of the user interface.
+
+![](fig5.svg)
+
+*Fig4: The view will repaint with each state change*
+
+## Immediate Mode vs Retained Mode
+
+As you might have noticed, every state change will trigger a whole repaint of all the screen. 
+
+In fact, this is not something new. 
+
+In the game programming world, we speak of **immediate mode** and **retained mode**.
+
+In retained mode programmers manage each change in the screen individually through mutation operations. 
+
+In **immediate mode**, on the other hand, programmers throw away the current state of the screen and create a new representation it with each frame just as we explained in the previous section.
+
+Just like DOM operations, graphic display operations are also quite expensive which means that re-painting the whole screen with each state change quickly become inviable from the point of view of performance.
+
+The solution from the game world to this problem is using a **graphic buffer** to render an in-memory version of the screen, and then diffing this buffer with the actual state of the screen in order to automatically calculate the necessary mutation operations. 
+
+Since memory operations are less expensive than graphic display operations, this solves the problem of performance in game programming with immediate mode.
+
+In the web world, we solve the problem of performance with the DOM using a similar technique. Namely, the **Virtual DOM**.
+
+![](fig6.svg)
+
+*Fig4: Immediate mode and Virtual DOM*
+
+In a future post I will talk about how to handle state changes in an **atomic transactional** way and why that is important.
+
+I will also look at techniques for managing these changes in performant ways such as **persistent data structures**.
+
+Thank you for reading, I hope you enjoy it!
